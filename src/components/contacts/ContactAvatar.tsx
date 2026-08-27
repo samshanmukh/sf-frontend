@@ -13,7 +13,7 @@ export default function ContactAvatar({
   contact,
   size = "md",
 }: {
-  contact: Pick<Contact, "first_name" | "last_name" | "email">;
+  contact: Pick<Contact, "first_name" | "last_name" | "email" | "photo">;
   size?: keyof typeof SIZES;
 }) {
   const style = {
@@ -26,7 +26,13 @@ export default function ContactAvatar({
       style={style}
       className={`contact-avatar inline-flex shrink-0 select-none items-center justify-center rounded-full font-display font-semibold ${SIZES[size]}`}
     >
-      {initials(contact)}
+      {contact.photo ? (
+        // Data URLs are validated by both the frontend and API before storage.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={contact.photo} alt="" className="h-full w-full rounded-full object-cover" />
+      ) : (
+        initials(contact)
+      )}
     </span>
   );
 }

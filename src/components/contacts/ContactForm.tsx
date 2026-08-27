@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import Link from "next/link";
 import { AlertCircle, Loader2 } from "lucide-react";
@@ -29,6 +29,59 @@ function SubmitButton({ label }: { label: string }) {
       ) : null}
       {pending ? "Saving…" : label}
     </Button>
+  );
+}
+
+function PhotoField({ initialPhoto, error }: { initialPhoto: string; error?: string }) {
+  const [photo, setPhoto] = useState(initialPhoto);
+  const [clientError, setClientError] = useState<string>();
+
+  function choosePhoto(file?: File) {
+    if (!file) return;
+    if (!/image\/(png|jpeg|webp|gif)/.test(file.type)) {
+      setClientError("Choose a PNG, JPEG, WebP, or GIF image");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      setClientError("Photo must be 2 MB or smaller");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setPhoto(String(reader.result));
+      setClientError(undefined);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  return (
+    <fieldset className="space-y-4">
+      <legend className="sr-only">Photo</legend>
+      <div className="border-b border-hairline pb-2">
+        <h2 className="font-display text-sm font-semibold text-foreground">Photo</h2>
+        <p className="text-[13px] text-muted-foreground">PNG, JPEG, WebP, or GIF up to 2 MB.</p>
+      </div>
+      <input type="hidden" name="photo" value={photo} />
+      <div className="flex items-center gap-4">
+        {photo ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={photo} alt="Contact preview" className="h-20 w-20 rounded-full border border-border object-cover" />
+        ) : (
+          <div className="h-20 w-20 rounded-full border border-dashed border-border bg-muted" aria-hidden="true" />
+        )}
+        <div className="space-y-2">
+          <input
+            aria-label="Contact photo"
+            type="file"
+            accept="image/png,image/jpeg,image/webp,image/gif"
+            onChange={(event) => choosePhoto(event.target.files?.[0])}
+            className="block text-sm text-muted-foreground"
+          />
+          {photo ? <Button type="button" variant="secondary" onClick={() => setPhoto("")}>Remove photo</Button> : null}
+          {clientError || error ? <p role="alert" className="text-sm text-destructive">{clientError ?? error}</p> : null}
+        </div>
+      </div>
+    </fieldset>
   );
 }
 
@@ -95,6 +148,11 @@ export default function ContactForm({
           </div>
         </fieldset>
       ))}
+
+      <PhotoField
+        initialPhoto={state.values?.photo ?? contact?.photo ?? ""}
+        error={state.fieldErrors?.photo}
+      />
 
       <div className="flex items-center gap-2 border-t border-hairline pt-4">
         <SubmitButton label={submitLabel} />
