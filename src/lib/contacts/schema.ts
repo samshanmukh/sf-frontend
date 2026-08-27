@@ -41,6 +41,16 @@ export const contactInputSchema = z.object({
   phone: optionalText(40, "Phone"),
   company: optionalText(200, "Company"),
   job_title: optionalText(200, "Job title"),
+  photo: z
+    .string()
+    .max(2_800_000, "Photo must be 2 MB or smaller")
+    .refine(
+      (value) => !value || /^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/]+={0,2}$/.test(value),
+      "Choose a PNG, JPEG, WebP, or GIF image",
+    )
+    .transform((value) => value || null)
+    .nullable()
+    .default(null),
   address: optionalText(300, "Address"),
   city: optionalText(120, "City"),
   state: optionalText(120, "State"),
@@ -219,9 +229,9 @@ export function formDataToValues(
   formData: FormData,
 ): Record<keyof ContactInput, string> {
   return Object.fromEntries(
-    CONTACT_FIELDS.map((field) => [
+    [...CONTACT_FIELDS.map((field) => [
       field.name,
       String(formData.get(field.name) ?? ""),
-    ]),
+    ]), ["photo", String(formData.get("photo") ?? "")]],
   ) as Record<keyof ContactInput, string>;
 }
