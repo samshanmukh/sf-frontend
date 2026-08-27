@@ -76,7 +76,11 @@ function PhotoField({ initialPhoto, error }: { initialPhoto: string; error?: str
             aria-label="Contact photo"
             type="file"
             accept="image/png,image/jpeg,image/webp,image/gif"
-            onChange={(event) => choosePhoto(event.target.files?.[0])}
+            onChange={(event) => {
+              const file = event.currentTarget.files?.[0];
+              event.currentTarget.value = "";
+              choosePhoto(file);
+            }}
             className="block text-sm text-muted-foreground"
           />
           {photo ? <Button type="button" variant="secondary" onClick={() => setPhoto("")}>Remove photo</Button> : null}

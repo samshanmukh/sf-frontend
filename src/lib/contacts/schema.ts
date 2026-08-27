@@ -43,7 +43,7 @@ export const contactInputSchema = z.object({
   job_title: optionalText(200, "Job title"),
   photo: z
     .string()
-    .max(2_800_000, "Photo must be 2 MB or smaller")
+    .max(2_796_227, "Photo must be 2 MB or smaller")
     .refine(
       (value) => !value || /^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/]+={0,2}$/.test(value),
       "Choose a PNG, JPEG, WebP, or GIF image",
