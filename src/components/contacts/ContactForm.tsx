@@ -38,7 +38,8 @@ function PhotoField({ initialPhoto, error }: { initialPhoto: string; error?: str
 
   function choosePhoto(file?: File) {
     if (!file) return;
-    if (!/image\/(png|jpeg|webp|gif)/.test(file.type)) {
+    const supportedTypes = new Set(["image/png", "image/jpeg", "image/webp", "image/gif"]);
+    if (!supportedTypes.has(file.type)) {
       setClientError("Choose a PNG, JPEG, WebP, or GIF image");
       return;
     }
@@ -51,6 +52,7 @@ function PhotoField({ initialPhoto, error }: { initialPhoto: string; error?: str
       setPhoto(String(reader.result));
       setClientError(undefined);
     };
+    reader.onerror = () => setClientError("The photo could not be read");
     reader.readAsDataURL(file);
   }
 

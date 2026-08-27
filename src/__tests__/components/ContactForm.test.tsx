@@ -36,6 +36,17 @@ describe("ContactForm", () => {
     expect(screen.getByLabelText(/street address/i)).toHaveValue("");
   });
 
+  it("previews and can remove an existing photo", async () => {
+    renderForm(
+      jest.fn(),
+      makeContact({ photo: "data:image/png;base64,iVBORw0KGgo=" }),
+    );
+
+    expect(screen.getByRole("img", { name: "Contact preview" })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Remove photo" }));
+    expect(screen.queryByRole("img", { name: "Contact preview" })).not.toBeInTheDocument();
+  });
+
   it("submits the entered values to the action", async () => {
     const action = jest.fn<Promise<FormState>, [FormState, FormData]>(
       async () => ({ status: "idle" }),
